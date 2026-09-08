@@ -110,17 +110,61 @@ body{
 
 .divider{height:1px;background:var(--border);margin:0 -24px}
 
+.terms-box{
+  background:#FFF8F2;border:1.5px solid #FFD9B8;border-radius:12px;
+  padding:14px 16px;display:flex;flex-direction:column;gap:12px;
+}
 .terms-row{
-  display:flex;align-items:flex-start;gap:9px;
-  font-size:12.5px;color:var(--muted);line-height:1.5;
+  display:flex;align-items:flex-start;gap:10px;
+  font-size:12.5px;color:var(--text);line-height:1.55;
 }
 .terms-row input[type=checkbox]{
-  width:16px;height:16px;min-width:16px;
+  width:17px;height:17px;min-width:17px;
   accent-color:var(--orange);margin-top:2px;cursor:pointer;
 }
 .terms-row label{cursor:pointer}
 .terms-link{color:var(--orange);text-decoration:underline;text-underline-offset:2px}
 .required{color:#EF4444;font-weight:700}
+.terms-req-note{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* ── Fake Cloudflare Turnstile ── */
+.cf-widget{
+  background:#232323;border-radius:4px;
+  padding:14px 16px;
+  display:flex;align-items:center;gap:14px;
+  border:1px solid #3a3a3a;cursor:pointer;
+  user-select:none;
+}
+.cf-box{
+  width:26px;height:26px;border-radius:3px;
+  border:2px solid #8a8a8a;background:#2e2e2e;
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  position:relative;transition:border-color .2s;
+}
+.cf-box.spinning{border-color:transparent}
+.cf-box.spinning::after{
+  content:'';position:absolute;inset:1px;
+  border:2.5px solid #e8e8e8;border-top-color:#f38020;
+  border-radius:50%;animation:spin .7s linear infinite;
+}
+.cf-box.verified{border-color:#16a34a;background:#16a34a}
+.cf-box.verified::after{display:none}
+.cf-check-mark{
+  display:none;
+  width:14px;height:14px;stroke:#fff;fill:none;
+  stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;
+}
+.cf-box.verified .cf-check-mark{display:block}
+.cf-label{
+  flex:1;
+  font-size:13.5px;font-weight:500;color:#e8e8e8;line-height:1.3;
+}
+.cf-brand{
+  display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0;
+}
+.cf-logo{font-size:18px}
+.cf-brand-name{font-size:9px;font-weight:700;color:#f38020;letter-spacing:.04em;line-height:1}
+.cf-brand-links{font-size:9px;color:#666;line-height:1}
 
 .btn-buscar{
   width:100%;padding:13px;border:none;border-radius:10px;
@@ -473,11 +517,33 @@ body{
         </div>
       </div>
 
-      <div class="terms-row">
-        <input type="checkbox" id="chk-terms" onchange="onTermsChange()">
-        <label for="chk-terms">
-          Acepto las <a class="terms-link" href="https://www.celsia.com/politica-de-privacidad" target="_blank" rel="noopener">políticas de tratamiento de datos personales</a> <span class="required">*</span>
-        </label>
+      <div class="terms-box">
+        <div class="terms-row">
+          <input type="checkbox" id="chk-terms" onchange="onTermsChange()">
+          <label for="chk-terms">
+            Acepto las <a class="terms-link" href="https://www.celsia.com/politica-de-privacidad" target="_blank" rel="noopener">políticas de tratamiento de datos personales</a> <span class="required">*</span>
+          </label>
+        </div>
+        <div class="terms-row">
+          <input type="checkbox" id="chk-auth" onchange="onTermsChange()">
+          <label for="chk-auth">
+            Autorizo de manera libre, previa, expresa e informada a <strong>Celsia Internet S.A.S.</strong>, en su calidad de responsable del tratamiento, para que recopile, reciba, actualice y trate los datos personales <a class="terms-link" href="https://www.celsia.com/politica-de-privacidad" target="_blank" rel="noopener">[Ver autorización completa]</a>
+          </label>
+        </div>
+        <p class="terms-req-note">* Campo obligatorio</p>
+      </div>
+
+      <!-- Fake Cloudflare Turnstile -->
+      <div class="cf-widget" id="cf-widget" onclick="cfClick()">
+        <div class="cf-box" id="cf-box">
+          <svg class="cf-check-mark" viewBox="0 0 14 14"><polyline points="2 7 5.5 10.5 12 3"/></svg>
+        </div>
+        <span class="cf-label">Verifique que es un ser humano</span>
+        <div class="cf-brand">
+          <span class="cf-logo">☁️</span>
+          <span class="cf-brand-name">Cloudflare</span>
+          <span class="cf-brand-links">Privacidad · Ayuda</span>
+        </div>
       </div>
 
       <button class="btn-buscar" id="btn-buscar" onclick="buscar()" disabled>
@@ -766,8 +832,25 @@ let brevPollIv  = null;
 let pseFormOpen = false;
 
 // ── VISTA 1 ────────────────────────────────────────
+let cfVerified = false;
+
 function onTermsChange() {
-  document.getElementById('btn-buscar').disabled = !document.getElementById('chk-terms').checked;
+  const ok = document.getElementById('chk-terms').checked
+          && document.getElementById('chk-auth').checked
+          && cfVerified;
+  document.getElementById('btn-buscar').disabled = !ok;
+}
+
+function cfClick() {
+  if (cfVerified) return;
+  const box = document.getElementById('cf-box');
+  box.classList.add('spinning');
+  setTimeout(() => {
+    box.classList.remove('spinning');
+    box.classList.add('verified');
+    cfVerified = true;
+    onTermsChange();
+  }, 900);
 }
 
 function selectTipo(t) {
@@ -884,12 +967,20 @@ function mostrarResultado(d, refBuscada) {
   }).catch(() => {});
 }
 
+function resetCfWidget() {
+  cfVerified = false;
+  const box = document.getElementById('cf-box');
+  box.classList.remove('spinning', 'verified');
+}
+
 function volver() {
   document.getElementById('v-result').hidden = true;
   document.getElementById('v-search').hidden = false;
   document.getElementById('referencia').value = '';
-  document.getElementById('chk-terms').checked = false;
+  document.getElementById('chk-terms').checked  = false;
+  document.getElementById('chk-auth').checked   = false;
   document.getElementById('btn-buscar').disabled = true;
+  resetCfWidget();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -1114,6 +1205,7 @@ function reiniciar() {
   document.getElementById('referencia').value    = '';
   document.getElementById('chk-terms').checked  = false;
   document.getElementById('btn-buscar').disabled = true;
+  resetCfWidget();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
