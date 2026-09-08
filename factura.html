@@ -25,11 +25,12 @@
   position:fixed;top:0;left:0;right:0;
   padding:13px 24px;
   background:linear-gradient(90deg,#D63A10 0%,#E8531F 30%,#F5821F 55%,#E03060 80%,#B8308A 100%);
-  display:flex;align-items:center;gap:12px;
+  display:flex;align-items:center;justify-content:center;gap:12px;
   z-index:50;box-shadow:0 2px 12px rgba(0,0,0,.18);
 }
 .tb-brand{font-size:17px;font-weight:400;color:#fff}
-.tb-brand strong{font-weight:800}
+.tb-brand strong{font-weight:800;color:#fff}
+.tb-brand .tb-internet{color:#000;font-weight:700}
 .tb-sep{color:rgba(255,255,255,.55);font-size:17px}
 .tb-title{font-size:15px;font-weight:500;color:rgba(255,255,255,.88)}
 
@@ -411,7 +412,7 @@ body{
 </style>
 
 <header class="top-bar">
-  <span class="tb-brand"><strong>Celsia</strong> internet</span>
+  <span class="tb-brand"><strong>Celsia</strong> <span class="tb-internet">internet</span></span>
   <span class="tb-sep">|</span>
   <span class="tb-title">Portal de Pagos</span>
 </header>
