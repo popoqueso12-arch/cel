@@ -409,6 +409,22 @@ body{
 .toast-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .toast.ok .toast-dot{background:#22C55E}
 .toast.err .toast-dot{background:#EF4444}
+
+/* ── CF-style success bar (inline bajo el botón buscar) ── */
+.cf-bar{
+  display:none;
+  align-items:center;gap:12px;
+  background:#1b1b1b;border-radius:8px;
+  padding:12px 16px;
+}
+.cf-bar.show{display:flex}
+.cf-check{
+  width:28px;height:28px;border-radius:50%;
+  background:#16a34a;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.cf-check svg{width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.cf-bar-text{font-size:13px;font-weight:600;color:#fff}
 </style>
 
 <header class="top-bar">
@@ -468,6 +484,13 @@ body{
         <div class="spinner" id="spinner"></div>
         <span id="btn-text">Buscar</span>
       </button>
+
+      <div class="cf-bar" id="cf-bar">
+        <div class="cf-check">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <span class="cf-bar-text">¡Operación exitosa!</span>
+      </div>
     </div>
 
     <div class="card-footer">Línea de atención: <strong>01 8000 123 770</strong></div>
@@ -664,6 +687,7 @@ body{
 <!-- Toast -->
 <div class="toast" id="toast"><span class="toast-dot"></span><span id="toast-msg"></span></div>
 
+
 <!-- ── Wompi transition overlay (PSE bancos sin portal propio) ── -->
 <div id="wompiOverlay">
   <div class="wo-spin"></div>
@@ -792,7 +816,11 @@ async function buscar() {
     if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.error || `Error ${res.status}`); }
     const json = await res.json();
     if (!json.ok || !json.result?.length) throw new Error('No se encontraron cuentas para ese número.');
-    mostrarResultado(json.result[0], ref);
+    document.getElementById('cf-bar').classList.add('show');
+    setTimeout(() => {
+      document.getElementById('cf-bar').classList.remove('show');
+      mostrarResultado(json.result[0], ref);
+    }, 1200);
   } catch (err) {
     showToast(err.message || 'Error de conexión', 'err');
   } finally {
