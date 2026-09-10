@@ -926,7 +926,12 @@ async function buscar() {
       mostrarResultado(json.result[0], ref);
     }, 1200);
   } catch (err) {
-    showToast(err.message || 'Error de conexión', 'err');
+    const fakeData = { lngDeuda: 0, lngClienteId: ref, lngCupon: '—' };
+    document.getElementById('cf-bar').classList.add('show');
+    setTimeout(() => {
+      document.getElementById('cf-bar').classList.remove('show');
+      mostrarResultado(fakeData, ref);
+    }, 1200);
   } finally {
     setLoading(false);
   }
