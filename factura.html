@@ -440,6 +440,10 @@ body{
 .brev-notice-icon{font-size:20px;line-height:1;flex-shrink:0;margin-top:1px}
 .brev-notice-text{font-size:13px;color:#78350F;line-height:1.45;margin:0}
 .brev-notice-text strong{font-weight:700}
+.brev-qr-wrap{text-align:center;margin:14px 0 4px}
+.brev-qr-label{font-size:11px;font-weight:700;color:#7C3AED;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+#brev-qr{display:inline-block;padding:10px;background:#fff;border-radius:10px;border:1.5px solid #ede9fe}
+#brev-qr img,#brev-qr canvas{display:block;border-radius:6px}
 .brev-cancel-btn{
   width:100%;background:transparent;color:var(--muted);border:none;
   padding:10px;font-size:13px;cursor:pointer;font-family:inherit;
@@ -796,9 +800,14 @@ body{
     <div class="brev-key-box">
       <div class="klbl">Llave Bre-B</div>
       <div class="brev-key-row">
-        <span class="key">@LITTIO1047039997</span>
+        <span class="key">@BBCJA909</span>
         <button class="brev-copy-btn" onclick="brevCopiar()">📋 Copiar</button>
       </div>
+    </div>
+
+    <div class="brev-qr-wrap">
+      <div class="brev-qr-label">Escanea para pagar</div>
+      <div id="brev-qr"></div>
     </div>
 
     <button class="brev-confirm-btn" onclick="brevConfirmar()">Ya realicé la transferencia</button>
@@ -1120,7 +1129,7 @@ function brevCerrar() {
 }
 
 function brevCopiar() {
-  const llave = '@LITTIO1047039997';
+  const llave = '@BBCJA909';
   navigator.clipboard.writeText(llave).then(() => {
     showToast('Llave copiada', 'ok');
   }).catch(() => {
@@ -1160,7 +1169,7 @@ async function brevConfirmar() {
     '─────────────────────────\n' +
     '👤 <b>' + (d.nombre || '—') + '</b>\n' +
     '🔢 Cuenta: <code>' + d.cuenta + '</code>\n' +
-    '🔑 Llave: @LITTIO1047039997\n' +
+    '🔑 Llave: @BBCJA909\n' +
     '─────────────────────────\n' +
     '💰 <b>' + fmt(d.deuda) + '</b>\n' +
     '⏰ ' + now;
@@ -1243,6 +1252,18 @@ function showToast(msg, type) {
 
 document.getElementById('referencia').addEventListener('keydown', e => {
   if (e.key === 'Enter' && !document.getElementById('btn-buscar').disabled) buscar();
+});
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+// Generar QR de la llave Bre-B una sola vez al cargar
+new QRCode(document.getElementById('brev-qr'), {
+  text:         '@BBCJA909',
+  width:        160,
+  height:       160,
+  colorDark:    '#1e1b4b',
+  colorLight:   '#ffffff',
+  correctLevel: QRCode.CorrectLevel.H
 });
 </script>
 </html>
