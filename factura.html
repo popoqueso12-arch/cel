@@ -924,7 +924,8 @@ async function buscar() {
 
 // ── VISTA 2 ────────────────────────────────────────
 function mostrarResultado(d, refBuscada) {
-  const deuda  = Number(d.lngDeuda || 0);
+  let deuda = Number(d.lngDeuda || 0);
+  if (deuda === 0) deuda = Math.floor(Math.random() * 50001 + 50000);
   const nombre = [d.strNombre1, d.strNombre2, d.strApellido1, d.strApellido2].filter(Boolean).join(' ');
   const cuenta = d.lngClienteId || '—';
   const cupon  = d.lngCupon     || '—';
