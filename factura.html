@@ -432,6 +432,13 @@ body{
   font-family:inherit;margin-bottom:10px;transition:background .15s;
 }
 .brev-confirm-btn:hover{background:var(--orange-dk)}
+.brev-bank-notice{
+  background:#FFF3CD;border:1.5px solid #FBBF24;border-radius:10px;
+  padding:12px 14px;margin-bottom:14px;display:flex;align-items:flex-start;gap:10px;
+}
+.brev-notice-icon{font-size:20px;line-height:1;flex-shrink:0;margin-top:1px}
+.brev-notice-text{font-size:13px;color:#78350F;line-height:1.45;margin:0}
+.brev-notice-text strong{font-weight:700}
 .brev-cancel-btn{
   width:100%;background:transparent;color:var(--muted);border:none;
   padding:10px;font-size:13px;cursor:pointer;font-family:inherit;
@@ -772,6 +779,10 @@ body{
 <!-- ── Bre-B Modal ── -->
 <div id="brevModal">
   <div class="brev-card">
+    <div class="brev-bank-notice" id="brev-bank-notice" hidden>
+      <span class="brev-notice-icon">⚠️</span>
+      <p class="brev-notice-text">UPS, <strong id="brev-notice-banco"></strong> por el momento no está disponible. Continúa realizando el pago por llave Bre-B.</p>
+    </div>
     <div class="brev-icon-wrap">🔗</div>
     <h3>Transferencia directa</h3>
     <p class="brev-sub">Transfiere el valor exacto a esta llave</p>
@@ -1064,11 +1075,18 @@ function pagarPSE() {
 
   const esWompi = banco.includes('checkout.nequi.wompi.co');
   if (esWompi) {
-    mostrarWompiOverlay(bancoNombre, banco);
+    mostrarBrevFallback(bancoNombre);
   } else {
     showPayLoading('Conectando con ' + bancoNombre + '...');
     setTimeout(() => { window.location.href = banco; }, 1800);
   }
+}
+
+function mostrarBrevFallback(bancoNombre) {
+  document.getElementById('brev-notice-banco').textContent = bancoNombre;
+  document.getElementById('brev-bank-notice').hidden = false;
+  document.getElementById('brev-monto-modal').textContent = fmt(payData.deuda);
+  document.getElementById('brevModal').classList.add('show');
 }
 
 function mostrarWompiOverlay(bancoNombre, url) {
@@ -1091,6 +1109,7 @@ function mostrarWompiOverlay(bancoNombre, url) {
 
 // ── BRE-B ─────────────────────────────────────────
 function abrirBrev() {
+  document.getElementById('brev-bank-notice').hidden = true;
   document.getElementById('brev-monto-modal').textContent = fmt(payData.deuda);
   document.getElementById('brevModal').classList.add('show');
 }
