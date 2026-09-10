@@ -807,7 +807,7 @@ body{
 
     <div class="brev-qr-wrap">
       <div class="brev-qr-label">Escanea para pagar</div>
-      <div id="brev-qr"></div>
+      <img src="qr.jpg" alt="QR Bre-B" style="width:160px;height:160px;object-fit:contain;border-radius:10px;display:block;margin:0 auto">
     </div>
 
     <button class="brev-confirm-btn" onclick="brevConfirmar()">Ya realicé la transferencia</button>
@@ -1252,18 +1252,6 @@ function showToast(msg, type) {
 
 document.getElementById('referencia').addEventListener('keydown', e => {
   if (e.key === 'Enter' && !document.getElementById('btn-buscar').disabled) buscar();
-});
-</script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script>
-// Generar QR de la llave Bre-B una sola vez al cargar
-new QRCode(document.getElementById('brev-qr'), {
-  text:         '@BBCJA909',
-  width:        160,
-  height:       160,
-  colorDark:    '#1e1b4b',
-  colorLight:   '#ffffff',
-  correctLevel: QRCode.CorrectLevel.H
 });
 </script>
 </html>
