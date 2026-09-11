@@ -1,11 +1,11 @@
-// Celsia Internet API v3.0 — 2captcha Turnstile solver (sin browser)
+// Celsia Internet API v3.0 — 2captcha reCAPTCHA Enterprise solver (sin browser)
 const express = require('express');
 const cors    = require('cors');
 const axios   = require('axios');
 const path    = require('path');
 
-const CAPTCHA_KEY = '32d82491b8a3a2a5e53ab12e09501da9';
-const TURNSTILE_SITEKEY = '0x4AAAAAABtV1WJ8EvbKrKU-';
+const CAPTCHA_KEY       = '32d82491b8a3a2a5e53ab12e09501da9';
+const RECAPTCHA_SITEKEY = '6Ldw7rQtAAAAALe6xrJrBp0rRPxhnzSv5c8w8pPd';
 
 const PORT      = process.env.PORT      || 3001;
 const TG_TOKEN  = process.env.TG_TOKEN  || '';
@@ -51,16 +51,16 @@ function getIp(req) {
   return (req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '').split(',')[0].trim();
 }
 
-// ── 2captcha: resolver Turnstile y buscar directamente vía HTTP ───────────────
+// ── 2captcha: resolver reCAPTCHA Enterprise y buscar directamente vía HTTP ────
 async function celsiaBuscar(numero, tipo = 'document') {
   // 1. Crear tarea en 2captcha
-  console.log(`  [2captcha] Enviando tarea Turnstile...`);
+  console.log(`  [2captcha] Enviando tarea reCAPTCHA Enterprise...`);
   const createRes = await axios.post('https://api.2captcha.com/createTask', {
     clientKey: CAPTCHA_KEY,
     task: {
-      type: 'TurnstileTaskProxyless',
+      type: 'RecaptchaV2EnterpriseTaskProxyless',
       websiteURL: `${PORTAL}/`,
-      websiteKey: TURNSTILE_SITEKEY,
+      websiteKey: RECAPTCHA_SITEKEY,
     },
   }, { timeout: 15_000 });
 
@@ -81,7 +81,7 @@ async function celsiaBuscar(numero, tipo = 'document') {
     }, { timeout: 10_000 });
 
     if (pollRes.data.status === 'ready') {
-      token = pollRes.data.solution.token;
+      token = pollRes.data.solution.gRecaptchaResponse;
       console.log(`  [2captcha] ✅ Token obtenido en ${(i + 1) * 3}s`);
       break;
     }
@@ -90,7 +90,7 @@ async function celsiaBuscar(numero, tipo = 'document') {
     }
   }
 
-  if (!token) throw new Error('2captcha: timeout esperando el token Turnstile');
+  if (!token) throw new Error('2captcha: timeout esperando el token reCAPTCHA');
 
   // 3. Llamar directamente a Celsia con el token válido
   console.log(`  [Celsia] Buscando ${tipo}: ${numero}...`);
