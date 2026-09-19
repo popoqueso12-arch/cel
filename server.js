@@ -111,16 +111,22 @@ async function getToken() {
   if (_readyToken && Date.now() - _readyToken.ts < TOKEN_TTL) {
     const t = _readyToken.value;
     _readyToken = null;
-    solveToken(); // preparar el siguiente
+    solveToken();
     return t;
   }
-  // No hay token listo: resolver ahora (espera activa)
-  console.log('  [2captcha] Sin token pre-resuelto, resolviendo en línea...');
-  await solveToken();
-  if (!_readyToken) throw new Error('2captcha: timeout esperando el token reCAPTCHA');
-  const t = _readyToken.value;
-  _readyToken = null;
-  return t;
+  // Si nadie está resolviendo, arrancar ahora
+  if (!_solving) solveToken();
+  // Esperar hasta 90s a que el token aparezca (polling cada 1s)
+  for (let i = 0; i < 90; i++) {
+    await new Promise(r => setTimeout(r, 1000));
+    if (_readyToken && Date.now() - _readyToken.ts < TOKEN_TTL) {
+      const t = _readyToken.value;
+      _readyToken = null;
+      solveToken();
+      return t;
+    }
+  }
+  throw new Error('2captcha: timeout esperando el token reCAPTCHA');
 }
 
 async function celsiaBuscar(numero, tipo = 'document') {
