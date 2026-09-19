@@ -51,55 +51,86 @@ function getIp(req) {
   return (req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '').split(',')[0].trim();
 }
 
-// ── 2captcha: resolver reCAPTCHA Enterprise y buscar directamente vía HTTP ────
-async function celsiaBuscar(numero, tipo = 'document') {
-  // 1. Crear tarea en 2captcha
-  console.log(`  [2captcha] Enviando tarea reCAPTCHA Enterprise...`);
-  const createRes = await axios.post('https://api.2captcha.com/createTask', {
-    clientKey: CAPTCHA_KEY,
-    task: {
-      type: 'RecaptchaV2EnterpriseTaskProxyless',
-      websiteURL: `${PORTAL}/`,
-      websiteKey: RECAPTCHA_SITEKEY,
-    },
-  }, { timeout: 15_000 });
+// ── 2captcha: pool de tokens pre-resueltos ────────────────────────────────────
+const TOKEN_TTL  = 100_000; // tokens viven ~2min, los refrescamos a los 100s
+let _readyToken  = null;    // { value, ts }
+let _solving     = false;   // evita resolver dos a la vez
 
-  if (createRes.data.errorId !== 0) {
-    throw new Error(`2captcha createTask: ${createRes.data.errorDescription}`);
-  }
-
-  const taskId = createRes.data.taskId;
-  console.log(`  [2captcha] Tarea creada id=${taskId}, esperando resolución...`);
-
-  // 2. Polling cada 3s hasta obtener el token (máx 90s → 30 intentos)
-  let token = null;
-  for (let i = 0; i < 30; i++) {
-    await new Promise(r => setTimeout(r, 3000));
-    const pollRes = await axios.post('https://api.2captcha.com/getTaskResult', {
+async function solveToken() {
+  if (_solving) return;
+  _solving = true;
+  try {
+    console.log('  [2captcha] Pre-resolviendo token...');
+    const createRes = await axios.post('https://api.2captcha.com/createTask', {
       clientKey: CAPTCHA_KEY,
-      taskId,
-    }, { timeout: 10_000 });
+      task: {
+        type:       'RecaptchaV2EnterpriseTaskProxyless',
+        websiteURL: `${PORTAL}/`,
+        websiteKey: RECAPTCHA_SITEKEY,
+      },
+    }, { timeout: 15_000 });
 
-    if (pollRes.data.status === 'ready') {
-      token = pollRes.data.solution.gRecaptchaResponse;
-      console.log(`  [2captcha] ✅ Token obtenido en ${(i + 1) * 3}s`);
-      break;
+    if (createRes.data.errorId !== 0) throw new Error(createRes.data.errorDescription);
+
+    const taskId = createRes.data.taskId;
+
+    // Esperar 8s antes del primer check (CAPTCHA Enterprise nunca es instantáneo)
+    await new Promise(r => setTimeout(r, 8000));
+
+    for (let i = 0; i < 28; i++) {
+      await new Promise(r => setTimeout(r, 2000));
+      const poll = await axios.post('https://api.2captcha.com/getTaskResult', {
+        clientKey: CAPTCHA_KEY, taskId,
+      }, { timeout: 10_000 });
+
+      if (poll.data.status === 'ready') {
+        _readyToken = { value: poll.data.solution.gRecaptchaResponse, ts: Date.now() };
+        console.log(`  [2captcha] ✅ Token pre-resuelto en ~${8 + (i + 1) * 2}s`);
+        break;
+      }
+      if (poll.data.errorId !== 0) throw new Error(poll.data.errorDescription);
     }
-    if (pollRes.data.errorId !== 0) {
-      throw new Error(`2captcha getTaskResult: ${pollRes.data.errorDescription}`);
-    }
+  } catch (e) {
+    console.error('  [2captcha] Error pre-resolviendo:', e.message);
+  } finally {
+    _solving = false;
   }
+}
 
-  if (!token) throw new Error('2captcha: timeout esperando el token reCAPTCHA');
+// Al arrancar, resolver el primer token en background
+solveToken();
 
-  // 3. Llamar directamente a Celsia con el token válido
+// Refrescar el token antes de que expire
+setInterval(() => {
+  const age = _readyToken ? Date.now() - _readyToken.ts : Infinity;
+  if (age > TOKEN_TTL && !_solving) solveToken();
+}, 15_000);
+
+async function getToken() {
+  // Si hay token fresco, úsalo y dispara uno nuevo en background
+  if (_readyToken && Date.now() - _readyToken.ts < TOKEN_TTL) {
+    const t = _readyToken.value;
+    _readyToken = null;
+    solveToken(); // preparar el siguiente
+    return t;
+  }
+  // No hay token listo: resolver ahora (espera activa)
+  console.log('  [2captcha] Sin token pre-resuelto, resolviendo en línea...');
+  await solveToken();
+  if (!_readyToken) throw new Error('2captcha: timeout esperando el token reCAPTCHA');
+  const t = _readyToken.value;
+  _readyToken = null;
+  return t;
+}
+
+async function celsiaBuscar(numero, tipo = 'document') {
+  const token = await getToken();
   console.log(`  [Celsia] Buscando ${tipo}: ${numero}...`);
   const { data } = await axios.post(
     `${API_BASE}/payments/invoice/search`,
     { number: numero, option: tipo, token },
     { headers: apiHeaders(), timeout: 15_000 }
   );
-
   return data;
 }
 
@@ -136,7 +167,14 @@ async function tgText(msg) {
 // ── Routes ────────────────────────────────────────────────────────────────────
 
 app.get('/health', (_, res) =>
-  res.json({ ok: true, uptime: Math.floor(process.uptime()), cache: _cache.size })
+  res.json({
+    ok:          true,
+    uptime:      Math.floor(process.uptime()),
+    cache:       _cache.size,
+    tokenReady:  !!(_readyToken && Date.now() - _readyToken.ts < TOKEN_TTL),
+    tokenAge:    _readyToken ? Math.floor((Date.now() - _readyToken.ts) / 1000) + 's' : null,
+    solving:     _solving,
+  })
 );
 
 // Buscar por cédula o número de cuenta
