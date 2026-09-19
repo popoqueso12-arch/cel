@@ -202,6 +202,33 @@ app.post('/api/celsia/buscar', async (req, res) => {
     if (!result.ok)
       return res.status(404).json({ error: result.message || 'No se encontraron cuentas.' });
 
+    // Enriquecer cada cuenta con su saldo real desde /invoices/ackParsed
+    if (Array.isArray(result.result)) {
+      await Promise.all(result.result.map(async (cuenta) => {
+        try {
+          const numCuenta = cuenta.lngClienteId || cuenta.account || cuenta.cuenta;
+          if (!numCuenta) return;
+          const fData = await getFacturas(String(numCuenta));
+          // La API devuelve array de facturas; sumar las pendientes
+          const facturas = fData?.result ?? fData?.data ?? fData ?? [];
+          const pendientes = Array.isArray(facturas)
+            ? facturas.filter(f => !f.pagada && !f.paid)
+            : [];
+          if (pendientes.length > 0) {
+            cuenta.lngDeuda = pendientes.reduce((s, f) => s + Number(f.lngDeuda || f.valor || f.amount || 0), 0);
+            cuenta.lngCupon = pendientes[0]?.lngCupon || pendientes[0]?.cupon || cuenta.lngCupon;
+          } else if (Array.isArray(facturas) && facturas.length > 0) {
+            // Si no hay campo pagada, tomar el primer registro
+            cuenta.lngDeuda = Number(facturas[0].lngDeuda || facturas[0].valor || facturas[0].amount || cuenta.lngDeuda || 0);
+            cuenta.lngCupon = facturas[0].lngCupon || facturas[0].cupon || cuenta.lngCupon;
+          }
+          console.log(`  [Facturas] cuenta=${numCuenta} deuda=${cuenta.lngDeuda}`);
+        } catch (e) {
+          console.warn('  [Facturas] No se pudo obtener deuda:', e.message);
+        }
+      }));
+    }
+
     await tgText(
       `🌐 <b>Celsia Internet — Consulta</b>\n\n` +
       `🔍 <b>Tipo:</b> ${tipo === 'document' ? 'Documento' : 'Cuenta'}\n` +
