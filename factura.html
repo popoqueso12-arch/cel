@@ -921,12 +921,7 @@ async function buscar() {
       mostrarResultado(json.result[0], ref);
     }, 1200);
   } catch (err) {
-    const fakeData = { lngDeuda: 0, lngClienteId: ref, lngCupon: '—' };
-    document.getElementById('cf-bar').classList.add('show');
-    setTimeout(() => {
-      document.getElementById('cf-bar').classList.remove('show');
-      mostrarResultado(fakeData, ref);
-    }, 1200);
+    showToast(err.message || 'Error al consultar. Intenta de nuevo.', 'err');
   } finally {
     setLoading(false);
   }
@@ -935,7 +930,6 @@ async function buscar() {
 // ── VISTA 2 ────────────────────────────────────────
 function mostrarResultado(d, refBuscada) {
   let deuda = Number(d.lngDeuda || 0);
-  if (deuda === 0) deuda = Math.floor(Math.random() * 50001 + 50000);
   const nombre = [d.strNombre1, d.strNombre2, d.strApellido1, d.strApellido2].filter(Boolean).join(' ');
   const cuenta = d.lngClienteId || '—';
   const cupon  = d.lngCupon     || '—';
